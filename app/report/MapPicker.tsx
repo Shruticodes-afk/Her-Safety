@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -24,12 +24,39 @@ function LocationMarker({ position, setPosition }: { position: [number, number] 
   )
 }
 
-export default function MapPicker({ position, setPosition }: { position: [number, number] | null, setPosition: (pos: [number, number]) => void }) {
-  // Use a sensible default center or user's general area if possible. We'll default to London here for demo.
+function MapController({ targetPosition }: { targetPosition?: [number, number] | null }) {
+  const map = useMapEvents({})
+  
+  useEffect(() => {
+    if (targetPosition) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) {
+        map.setView(targetPosition, 13)
+      } else {
+        map.flyTo(targetPosition, 13, { duration: 1.5 })
+      }
+    }
+  }, [map, targetPosition])
+  
+  return null
+}
+
+export default function MapPicker({ position, setPosition, targetPosition }: { position: [number, number] | null, setPosition: (pos: [number, number]) => void, targetPosition?: [number, number] | null }) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
+
+  if (!isMounted) return null
+
+  // Use Lucknow as default center
   return (
-    <div className="h-64 w-full rounded-xl overflow-hidden border border-slate-600 shadow-inner z-0 relative">
+    <div className="w-full h-64 lg:h-full lg:min-h-[450px] rounded-xl overflow-hidden border border-rule shadow-sm z-0 relative">
       <MapContainer 
-        center={[51.505, -0.09]} 
+        key="report-map-picker"
+        center={[26.8467, 80.9462]} 
         zoom={13} 
         scrollWheelZoom={false} 
         className="h-full w-full z-0"
@@ -38,6 +65,7 @@ export default function MapPicker({ position, setPosition }: { position: [number
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <MapController targetPosition={targetPosition} />
         <LocationMarker position={position} setPosition={setPosition} />
       </MapContainer>
     </div>

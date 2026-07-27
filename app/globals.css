@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@source "../app";
+@source "../components";
+@source "../lib";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -8,7 +12,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-paper: #FBF9F6;
+  --color-ink: #0F172A;
+  --color-rose-muted: #CB7B75;
+  --color-ash: #475569;
+  --color-rule: #E2E8F0;
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-eb-garamond);
   --font-mono: var(--font-geist-mono);
 }
 
