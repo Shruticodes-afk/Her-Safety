@@ -81,7 +81,7 @@ function CellPopup({ cell }: { cell: RiskCell }) {
         throw new Error("Summary generation returned an invalid format.")
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.")
+      setError("Summary temporarily unavailable, please try again shortly.")
     } finally {
       setLoading(false)
     }

@@ -29,6 +29,18 @@ export default function SignupPage() {
     setLoading(true)
     setError(null)
 
+    if (!fullName || !age || !homeArea || !email || !password || !confirmPassword) {
+      setError("Please fill out all fields.")
+      setLoading(false)
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.")
+      setLoading(false)
+      return
+    }
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,

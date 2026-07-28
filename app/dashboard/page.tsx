@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic'
 const RiskMap = dynamic(() => import('./RiskMap'), {
   ssr: false,
   loading: () => (
-    <div className="h-[400px] w-full rounded-2xl bg-slate-100 border border-rule animate-pulse flex items-center justify-center">
+    <div className="h-[600px] w-full rounded-2xl bg-slate-100 border border-rule animate-pulse flex items-center justify-center">
       <span className="text-ash font-medium">Loading Risk Map...</span>
     </div>
   )

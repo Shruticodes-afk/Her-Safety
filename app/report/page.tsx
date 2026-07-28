@@ -50,7 +50,7 @@ export default function ReportPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!position) {
-      setError("Please select a location on the map.")
+      setError("Please pin a location before submitting.")
       return
     }
     

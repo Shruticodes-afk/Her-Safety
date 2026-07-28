@@ -19,6 +19,18 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
+    if (!email || !password) {
+      setError("Please fill out all fields.")
+      setLoading(false)
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.")
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
