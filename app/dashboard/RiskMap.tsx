@@ -18,13 +18,18 @@ function RiskMapController({ cells }: { cells: RiskCell[] }) {
   const map = useMap()
   useEffect(() => {
     if (cells.length > 0) {
-      const lats = cells.map(c => c.lat)
-      const lngs = cells.map(c => c.lng)
-      const bounds = L.latLngBounds(
-        L.latLng(Math.min(...lats), Math.min(...lngs)),
-        L.latLng(Math.max(...lats), Math.max(...lngs))
-      )
-      map.fitBounds(bounds, { padding: [50, 50] })
+      const validCells = cells.filter(c => c.lat !== 0 && c.lng !== 0)
+      if (validCells.length > 0) {
+        const lats = validCells.map(c => c.lat)
+        const lngs = validCells.map(c => c.lng)
+        const bounds = L.latLngBounds(
+          L.latLng(Math.min(...lats), Math.min(...lngs)),
+          L.latLng(Math.max(...lats), Math.max(...lngs))
+        )
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 })
+      } else {
+        map.setView([28.6139, 77.2090], 11)
+      }
     }
   }, [map, cells])
   return null
@@ -152,7 +157,7 @@ export default function RiskMap({ reports }: { reports: Report[] }) {
 
   if (!isMounted) {
     return (
-      <div className="w-full h-[400px] rounded-2xl bg-slate-100 border border-rule animate-pulse flex items-center justify-center shadow-sm">
+      <div className="w-full h-[600px] rounded-2xl bg-slate-100 border border-rule animate-pulse flex items-center justify-center shadow-sm">
         <span className="text-ash font-medium flex items-center gap-2">
           <svg className="animate-spin h-5 w-5 text-ash" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           Initializing Map...
@@ -169,11 +174,11 @@ export default function RiskMap({ reports }: { reports: Report[] }) {
   }
 
   return (
-    <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-rule shadow-sm z-0 relative">
+    <div className="w-full h-[600px] rounded-2xl overflow-hidden border border-rule shadow-sm z-0 relative">
       <MapContainer 
         key="dashboard-risk-map"
-        center={[26.8467, 80.9462]} 
-        zoom={12} 
+        center={[28.6139, 77.2090]} 
+        zoom={11} 
         scrollWheelZoom={false} 
         className="h-full w-full z-0"
       >
