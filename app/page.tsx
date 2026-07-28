@@ -332,7 +332,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <Logo />
           <div className="text-ash text-sm text-center md:text-left">
-            Open source on <a href="#" className="underline hover:text-ink">GitHub</a>.
+            Open source on <a href="https://github.com/Shruticodes-afk/her-safety" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">GitHub</a>.
           </div>
         </div>
       </footer>
