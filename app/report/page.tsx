@@ -125,7 +125,7 @@ export default function ReportPage() {
         <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-rule overflow-hidden">
           <div className="p-6 md:p-8 lg:p-10">
             <div className="flex justify-between items-start mb-2">
-              <h1 className="text-3xl font-bold text-ink">Report a Safety Incident</h1>
+              <h1 className="text-3xl font-bold text-ink tracking-tight">Report a Safety Incident</h1>
               <button type="button" onClick={() => router.push('/')} className="text-sm text-ash hover:text-ink mt-2 font-medium transition-colors">Cancel</button>
             </div>
             <p className="text-ash mb-8">Your report helps keep the community safe.</p>
@@ -222,7 +222,7 @@ export default function ReportPage() {
                 <button 
                   type="submit" 
                   disabled={submitting}
-                  className="w-full bg-rose-muted hover:bg-rose-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex justify-center items-center tracking-wide"
+                  className="w-full bg-rose-muted hover:bg-rose-400 text-white font-bold py-4 px-6 rounded-full transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex justify-center items-center tracking-wide"
                 >
                   {submitting ? (
                     <>

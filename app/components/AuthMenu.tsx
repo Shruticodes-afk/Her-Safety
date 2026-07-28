@@ -57,6 +57,9 @@ export default function AuthMenu({ isLight = false }: { isLight?: boolean }) {
       <Link href="/dashboard" className={`text-sm font-medium transition-colors hidden sm:block ${textColor}`}>
         Dashboard
       </Link>
+      <Link href="/report" className={`text-sm font-medium transition-colors hidden sm:block ${textColor}`}>
+        Report Incident
+      </Link>
       
       <div className="relative">
         <button 
@@ -85,6 +88,13 @@ export default function AuthMenu({ isLight = false }: { isLight?: boolean }) {
               className="block sm:hidden w-full text-left px-4 py-3 text-sm font-medium text-ink hover:bg-paper transition-colors"
             >
               Dashboard
+            </Link>
+            <Link 
+              href="/report"
+              onClick={() => setDropdownOpen(false)}
+              className="block sm:hidden w-full text-left px-4 py-3 text-sm font-medium text-ink hover:bg-paper transition-colors"
+            >
+              Report Incident
             </Link>
             <button 
               type="button"
