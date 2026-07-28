@@ -145,15 +145,15 @@ function CellPopup({ cell }: { cell: RiskCell }) {
   )
 }
 
-export default function RiskMap({ reports }: { reports: Report[] }) {
+export default function RiskMap({ reports, publicDataPoints = [] }: { reports: Report[], publicDataPoints?: any[] }) {
   const [isMounted, setIsMounted] = useState(false)
   const [cells, setCells] = useState<RiskCell[]>([])
   
   useEffect(() => {
     setIsMounted(true)
-    setCells(calculateRiskCells(reports))
+    setCells(calculateRiskCells(reports, publicDataPoints))
     return () => setIsMounted(false)
-  }, [reports])
+  }, [reports, publicDataPoints])
 
   if (!isMounted) {
     return (

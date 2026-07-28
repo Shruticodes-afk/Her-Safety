@@ -83,6 +83,7 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState<string | null>(null)
   const [myReports, setMyReports] = useState<any[]>([])
   const [allReports, setAllReports] = useState<any[]>([])
+  const [publicDataPoints, setPublicDataPoints] = useState<any[]>([])
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   useEffect(() => {
@@ -127,6 +128,15 @@ export default function DashboardPage() {
         setAllReports(allData)
       }
 
+      // Fetch public infrastructure data
+      const { data: publicData } = await supabase
+        .from('public_data_points')
+        .select('latitude, longitude, weight, data_type')
+      
+      if (publicData) {
+        setPublicDataPoints(publicData)
+      }
+
       setLoading(false)
     }
     
@@ -169,7 +179,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-ink mb-2">Community Risk Overview</h2>
             <p className="text-ash">AI-powered hotspots based on recent community incident reports.</p>
           </div>
-          <RiskMap reports={allReports} />
+          <RiskMap reports={allReports} publicDataPoints={publicDataPoints} />
         </section>
 
         {/* My Reports Section */}

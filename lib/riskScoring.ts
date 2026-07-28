@@ -1,3 +1,10 @@
+export interface PublicDataPoint {
+  latitude: number
+  longitude: number
+  weight: number
+  data_type: string
+}
+
 export interface Report {
   latitude: number
   longitude: number
@@ -17,10 +24,20 @@ export interface RiskCell {
   reports: Report[]
 }
 
-export function calculateRiskCells(reports: Report[]): RiskCell[] {
+export function calculateRiskCells(reports: Report[], publicDataPoints: PublicDataPoint[] = []): RiskCell[] {
   const cells = new Map<string, RiskCell>()
   const now = new Date().getTime()
   
+  // Group public infrastructure by the same ~110m cell resolution
+  const infraByCell = new Map<string, number>()
+  for (const pt of publicDataPoints) {
+    const cellLat = Math.round(pt.latitude * 1000) / 1000
+    const cellLng = Math.round(pt.longitude * 1000) / 1000
+    const key = `${cellLat},${cellLng}`
+    const currentWeight = infraByCell.get(key) || 0
+    infraByCell.set(key, currentWeight + pt.weight)
+  }
+
   // 30 days in ms
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
   const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000
@@ -66,5 +83,13 @@ export function calculateRiskCells(reports: Report[]): RiskCell[] {
     }
   }
 
-  return Array.from(cells.values())
+  // Apply the infrastructure modifiers and cap at 0
+  const finalCells = Array.from(cells.values()).map(cell => {
+    const key = `${cell.lat},${cell.lng}`
+    const modifier = infraByCell.get(key) || 0
+    cell.score = Math.max(0, cell.score + modifier)
+    return cell
+  })
+
+  return finalCells
 }
