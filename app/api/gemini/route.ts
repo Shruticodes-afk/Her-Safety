@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { action, data } = body
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
 
     if (action === 'categorize') {
       const { description } = data
