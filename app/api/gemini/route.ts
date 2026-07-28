@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { action, data } = body
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     if (action === 'categorize') {
       const { description } = data
@@ -58,14 +58,24 @@ export async function POST(request: Request) {
         - Categories seen: ${categories.join(', ')}
         - Severities seen: ${severities.join(', ')} (1 is low, 5 is high)
         
-        Write a concise, 1-2 sentence plain-English summary of the safety profile of this area. 
-        Tone should be empathetic, objective, and clear. Do not use filler intro phrases.
+        Analyze this data and return a structured JSON object containing:
+        - "verdict": A short string (e.g. "Low risk", "Moderate risk", "High risk")
+        - "reasoning": An array of 2-3 specific bullet point strings citing the actual data provided. Do not use generic filler.
+        
+        Respond with ONLY a valid JSON object matching this schema, no markdown blocks, no backticks.
       `
       
       const result = await model.generateContent(prompt)
       const response = await result.response
+      const text = response.text().trim().replace(/```json/g, '').replace(/```/g, '')
       
-      return NextResponse.json({ summary: response.text().trim() })
+      try {
+        const json = JSON.parse(text)
+        return NextResponse.json(json)
+      } catch (parseError) {
+        console.error("Gemini summarize output not valid JSON:", text)
+        return NextResponse.json({ error: 'Failed to parse Gemini output' }, { status: 500 })
+      }
     }
     
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })

@@ -33,7 +33,7 @@ function RiskMapController({ cells }: { cells: RiskCell[] }) {
 
 
 function CellPopup({ cell }: { cell: RiskCell }) {
-  const [summary, setSummary] = useState<string | null>(null)
+  const [summary, setSummary] = useState<{ verdict: string, reasoning: string[] } | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,7 +70,11 @@ function CellPopup({ cell }: { cell: RiskCell }) {
         throw new Error(errorData.error || "Failed to fetch AI summary.")
       }
       const data = await res.json()
-      setSummary(data.summary || "Summary generation failed.")
+      if (data.verdict && data.reasoning && Array.isArray(data.reasoning)) {
+        setSummary(data)
+      } else {
+        throw new Error("Summary generation returned an invalid format.")
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")
     } finally {
@@ -117,8 +121,19 @@ function CellPopup({ cell }: { cell: RiskCell }) {
       )}
 
       {summary && (
-        <div className="mt-3 bg-rose-50 p-3 rounded-lg border border-rose-100 shadow-sm">
-          <p className="text-xs leading-relaxed text-slate-700 italic">"{summary}"</p>
+        <div className="mt-3 bg-rose-50/50 p-3 rounded-lg border border-rose-100 shadow-sm">
+          <p className={`font-bold text-sm mb-2 uppercase tracking-wide ${
+            summary.verdict.toLowerCase().includes('high') ? 'text-red-600' :
+            summary.verdict.toLowerCase().includes('moderate') ? 'text-amber-600' :
+            'text-emerald-600'
+          }`}>
+            {summary.verdict}
+          </p>
+          <ul className="text-xs text-slate-700 space-y-1.5 list-disc pl-4">
+            {summary.reasoning.map((reason, idx) => (
+              <li key={idx} className="leading-relaxed">{reason}</li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
