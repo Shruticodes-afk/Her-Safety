@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import AuthMenu from '@/app/components/AuthMenu'
+import Logo from '@/app/components/Logo'
 
 const HomeMap = dynamic(() => import('./HomeMap'), { 
   ssr: false,
@@ -191,21 +192,7 @@ export default function HomePage() {
       {/* Scroll-Linked Progress Nav */}
       <nav className="fixed top-0 left-0 w-full bg-paper/90 backdrop-blur-md z-50 border-b border-rule transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2.5 group transition-opacity">
-            <svg 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="w-5 h-5 text-ink group-hover:text-rose-muted transition-colors"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="M9 12l2 2 4-4" />
-            </svg>
-            <span className="font-sans font-bold tracking-[0.15em] uppercase text-xs text-ink group-hover:text-rose-muted transition-colors">Her Safety</span>
-          </Link>
+          <Logo />
           
           <div className="hidden md:flex gap-8 items-center h-full">
             {navItems.map((item) => (
@@ -343,7 +330,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer className="bg-paper border-t border-rule py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="font-bold tracking-tight text-xl">Her Safety</div>
+          <Logo />
           <div className="text-ash text-sm text-center md:text-left">
             Open source on <a href="#" className="underline hover:text-ink">GitHub</a>.
           </div>
