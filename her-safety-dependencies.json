@@ -1,0 +1,19 @@
+{
+  "project": "Her-Safety",
+  "services": [
+    { "name": "SupabaseAuth", "criticality": 75 },
+    { "name": "SupabaseDB", "criticality": 90 },
+    { "name": "LeafletMaps", "criticality": 75 },
+    { "name": "GeminiAI", "criticality": 75 }
+  ],
+  "features": [
+    { "name": "UserLogin", "dependsOn": ["SupabaseAuth"] },
+    { "name": "UserSignup", "dependsOn": ["SupabaseAuth"] },
+    { "name": "SafeRouteNavigation", "dependsOn": ["LeafletMaps", "GeminiAI"] },
+    { "name": "UnsafeLocationDetection", "dependsOn": ["GeminiAI", "SupabaseDB"] },
+    { "name": "NearbyPoliceStations", "dependsOn": ["LeafletMaps", "SupabaseDB"] },
+    { "name": "StreetlightData", "dependsOn": ["LeafletMaps", "SupabaseDB"] },
+    { "name": "SavedLocations", "dependsOn": ["SupabaseDB", "SupabaseAuth"] },
+    { "name": "SmartSafetySuggestions", "dependsOn": ["GeminiAI"] }
+  ]
+}
