@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -28,6 +29,7 @@ export default function SignupPage() {
 
     setLoading(true)
     setError(null)
+    setSuccessMsg(null)
 
     if (!fullName || !age || !homeArea || !email || !password || !confirmPassword) {
       setError("Please fill out all fields.")
@@ -46,7 +48,9 @@ export default function SignupPage() {
       password,
       options: {
         data: {
-          name: fullName,
+          full_name: fullName,
+          age: parseInt(age),
+          home_area: homeArea
         }
       }
     })
@@ -57,19 +61,10 @@ export default function SignupPage() {
       return
     }
 
-    if (authData.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: authData.user.id,
-        full_name: fullName,
-        age: parseInt(age),
-        home_area: homeArea
-      })
-
-      if (profileError) {
-        setError("Account created, but failed to save profile details: " + profileError.message)
-        setLoading(false)
-        return
-      }
+    if (authData.user && !authData.session) {
+      setSuccessMsg("Account created! Please check your email for a confirmation link.")
+      setLoading(false)
+      return
     }
 
     router.push('/dashboard')
@@ -177,6 +172,12 @@ export default function SignupPage() {
               {error && (
                 <p className="text-red-500 text-xs font-medium mb-6 text-center">
                   {error}
+                </p>
+              )}
+
+              {successMsg && (
+                <p className="text-emerald-600 text-sm font-medium mb-6 text-center bg-emerald-50 py-3 rounded-lg border border-emerald-200 px-4">
+                  {successMsg}
                 </p>
               )}
 
