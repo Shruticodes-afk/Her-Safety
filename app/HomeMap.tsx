@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -30,6 +30,24 @@ function MapController({ targetPosition }: { targetPosition?: [number, number] |
   return null
 }
 
+function FitBoundsController({ reports }: { reports: any[] }) {
+  const map = useMap()
+  const hasFitted = useRef(false)
+  
+  useEffect(() => {
+    if (reports.length > 0 && !hasFitted.current) {
+      const validReports = reports.filter(r => r.latitude !== 0 && r.longitude !== 0)
+      if (validReports.length > 0) {
+        const bounds = L.latLngBounds(validReports.map(r => [r.latitude, r.longitude]))
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 })
+        hasFitted.current = true
+      }
+    }
+  }, [map, reports])
+  
+  return null
+}
+
 export default function HomeMap({ targetPosition }: { targetPosition?: [number, number] | null }) {
   const [reports, setReports] = useState<any[]>([])
   const [isMounted, setIsMounted] = useState(false)
@@ -54,11 +72,11 @@ export default function HomeMap({ targetPosition }: { targetPosition?: [number, 
   if (!isMounted) return null
 
   return (
-    <div className="h-full w-full z-0 relative">
+    <div className="h-[500px] w-full z-0 relative">
       <MapContainer 
         key="home-community-map"
-        center={[26.8467, 80.9462]} 
-        zoom={12} 
+        center={[28.6139, 77.2090]} 
+        zoom={11} 
         scrollWheelZoom={false} 
         className="h-full w-full z-0"
       >
@@ -68,6 +86,7 @@ export default function HomeMap({ targetPosition }: { targetPosition?: [number, 
           maxZoom={19}
         />
         <MapController targetPosition={targetPosition} />
+        <FitBoundsController reports={reports} />
         {reports.map((report, index) => (
           <Marker key={index} position={[report.latitude, report.longitude]}>
             <Popup>
