@@ -15,6 +15,7 @@ const RouteMap = dynamic(() => import('./RouteMap'), {
 export default function SafeRoutesPage() {
   const [loading, setLoading] = useState(true)
   const [cells, setCells] = useState<RiskCell[]>([])
+  const [dataError, setDataError] = useState<string | null>(null)
   
   const [start, setStart] = useState<[number, number] | null>(null)
   const [dest, setDest] = useState<[number, number] | null>(null)
@@ -29,17 +30,29 @@ export default function SafeRoutesPage() {
     const fetchData = async () => {
       const supabase = createClient()
       
-      const { data: reportsData } = await supabase
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log(`[ROUTES-DEBUG] Supabase session exists: ${!!session}`)
+      
+      const { data: reportsData, error: reportsError } = await supabase
         .from('reports')
         .select('latitude, longitude, category, severity, description, created_at, ai_category, ai_severity')
+      console.log(`[ROUTES-DEBUG] Reports fetched: ${reportsData?.length || 0}`, reportsError)
       
-      const { data: publicData } = await supabase
+      const { data: publicData, error: publicError } = await supabase
         .from('public_data_points')
         .select('latitude, longitude, weight, data_type')
+      console.log(`[ROUTES-DEBUG] Public data points fetched: ${publicData?.length || 0}`, publicError)
       
+      if (!session && (!reportsData || reportsData.length === 0)) {
+        setDataError("Sign in to load risk data")
+      } else if (reportsError) {
+        setDataError(reportsError.message)
+      }
+
       if (reportsData) {
         const generatedCells = calculateRiskCells(reportsData as Report[], (publicData || []) as PublicDataPoint[])
         setCells(generatedCells)
+        console.log(`[ROUTES-DEBUG] RiskCells returned: ${generatedCells.length}`)
       }
       setLoading(false)
     }
@@ -116,12 +129,14 @@ export default function SafeRoutesPage() {
   }
 
   const fastestDuration = routes.length > 0 ? Math.min(...routes.map(r => r.durationMin)) : 0;
-  const fastestRouteIndex = routes.length > 0 ? routes.findIndex(r => r.durationMin === fastestDuration) : -1;
+  let fastestRouteIndex = routes.length > 0 ? routes.findIndex(r => r.durationMin === fastestDuration) : -1;
 
   let showSafestBadge = false;
   let showNeutralNote = false;
 
-  if (routes.length === 1) {
+  if (cells.length === 0) {
+    fastestRouteIndex = -1;
+  } else if (routes.length === 1) {
     showSafestBadge = !routes[0].isLowCoverage;
   } else if (routes.length > 1) {
     const best = routes[0];
@@ -161,6 +176,11 @@ export default function SafeRoutesPage() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 lg:w-2/3">
+            {dataError && (
+              <div className="mb-4 bg-red-50 p-4 rounded-xl border border-red-200 text-red-700 font-medium shadow-sm">
+                {dataError}
+              </div>
+            )}
             {loading ? (
               <div className="w-full h-[500px] border border-rule rounded-xl animate-pulse bg-slate-100 flex items-center justify-center text-ash font-medium">Loading risk data...</div>
             ) : (

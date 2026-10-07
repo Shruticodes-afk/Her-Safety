@@ -78,6 +78,8 @@ export function scoreRoutes(routes: any[], cells: any[], highRiskThreshold: numb
       if (hasCellNearby) coveredPoints++;
     }
 
+    console.log(`[ROUTES-DEBUG] Route ${idx}: ${samples.length} sample points, ${coveredPoints} points had a cell within 150m.`);
+
     const avgRisk = samples.length > 0 ? totalPointRisk / samples.length : 0;
     const coverage = samples.length > 0 ? coveredPoints / samples.length : 0;
     const distanceKm = route.distance / 1000;
