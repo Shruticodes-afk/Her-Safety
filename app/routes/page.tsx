@@ -257,12 +257,12 @@ export default function SafeRoutesPage() {
                   className={`text-left p-5 rounded-2xl border-2 transition-all shadow-sm ${isSelected ? colorClass : unselectedClass}`}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg">
+                    <h3 className="font-bold text-lg text-ink">
                       {label}
                       {isSafest && <span className="text-xs ml-2 bg-emerald-500 text-white px-2 py-0.5 rounded-full">Safest</span>}
                       {isFastest && <span className="text-xs ml-2 bg-blue-500 text-white px-2 py-0.5 rounded-full">Fastest</span>}
                     </h3>
-                    <span className="font-mono font-bold text-lg">{r.riskScore.toFixed(1)}</span>
+                    <span className="font-mono font-bold text-lg text-ink">{r.riskScore.toFixed(1)}</span>
                   </div>
                   
                   <div className="text-sm text-slate-600 space-y-1 mb-3">
