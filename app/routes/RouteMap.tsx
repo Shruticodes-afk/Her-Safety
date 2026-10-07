@@ -1,6 +1,6 @@
 "use client"
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Marker, useMapEvents, Polyline, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Circle, CircleMarker, Marker, useMapEvents, Polyline, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { RiskCell } from '@/lib/riskScoring'
@@ -57,16 +57,15 @@ export default function RouteMap({ cells, start, dest, setStart, setDest, routes
         <ClickHandler setStart={setStart} setDest={setDest} start={start} dest={dest} />
         
         {cells.map((cell: RiskCell, idx: number) => (
-          <CircleMarker 
+          <Circle 
             key={idx}
             center={[cell.lat, cell.lng]}
-            radius={Math.min(Math.max(cell.score * 2, 10), 40)}
+            radius={150}
             pathOptions={{ 
               color: getCellColor(cell.score), 
               fillColor: getCellColor(cell.score),
-              fillOpacity: 0.1,
-              weight: 1,
-              opacity: 0.3
+              fillOpacity: 0.35,
+              weight: 0,
             }}
           />
         ))}
@@ -89,6 +88,14 @@ export default function RouteMap({ cells, start, dest, setStart, setDest, routes
           )
         })}
       </MapContainer>
+      {cells.length > 0 && (
+        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm p-3 text-xs border border-rule rounded-lg z-[1000] shadow-sm flex flex-col gap-1.5 pointer-events-none">
+          <div className="font-bold mb-1 text-slate-800">Risk Level</div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500 opacity-60"></span> High (&ge;10)</div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-orange-500 opacity-60"></span> Medium (5-9)</div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-yellow-500 opacity-60"></span> Low (&lt;5)</div>
+        </div>
+      )}
     </div>
   )
 }

@@ -86,7 +86,17 @@ export default function SafeRoutesPage() {
         clearTimeout(timeoutId)
         
         if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
-          const scored = scoreRoutes(data.routes.slice(0, 3), cells)
+          const uniqueRoutes = [];
+          for (const route of data.routes) {
+            const isDuplicate = uniqueRoutes.some(existing => {
+              const distDiff = Math.abs(existing.distance - route.distance) / Math.max(existing.distance, 1);
+              const durDiff = Math.abs(existing.duration - route.duration);
+              return distDiff < 0.01 && durDiff < 5;
+            });
+            if (!isDuplicate) uniqueRoutes.push(route);
+          }
+
+          const scored = scoreRoutes(uniqueRoutes.slice(0, 3), cells)
           scored.sort((a, b) => {
             if (Math.abs(a.riskScore - b.riskScore) < 0.001) {
               return a.durationMin - b.durationMin
@@ -133,11 +143,13 @@ export default function SafeRoutesPage() {
 
   let showSafestBadge = false;
   let showNeutralNote = false;
+  let showOnlyOneNote = false;
 
   if (cells.length === 0) {
     fastestRouteIndex = -1;
   } else if (routes.length === 1) {
-    showSafestBadge = !routes[0].isLowCoverage;
+    fastestRouteIndex = -1;
+    showOnlyOneNote = true;
   } else if (routes.length > 1) {
     const best = routes[0];
     const next = routes[1];
@@ -211,6 +223,18 @@ export default function SafeRoutesPage() {
             {!routeLoading && showNeutralNote && (
               <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium">
                 No meaningful risk difference found between these routes - data is limited here.
+              </div>
+            )}
+
+            {!routeLoading && cells.length === 0 && !dataError && (
+              <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium">
+                Risk data not loaded.
+              </div>
+            )}
+
+            {!routeLoading && showOnlyOneNote && (
+              <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium">
+                Only one route available for this trip.
               </div>
             )}
 
