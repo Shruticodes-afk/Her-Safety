@@ -74,7 +74,12 @@ export default function SafeRoutesPage() {
         
         if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
           const scored = scoreRoutes(data.routes.slice(0, 3), cells)
-          scored.sort((a, b) => a.riskScore - b.riskScore)
+          scored.sort((a, b) => {
+            if (Math.abs(a.riskScore - b.riskScore) < 0.001) {
+              return a.durationMin - b.durationMin
+            }
+            return a.riskScore - b.riskScore
+          })
           const finalRoutes = scored.map((r, i) => ({ ...r, routeIndex: i }))
           setRoutes(finalRoutes)
           setSelectedRouteIndex(0)
@@ -111,6 +116,25 @@ export default function SafeRoutesPage() {
   }
 
   const fastestDuration = routes.length > 0 ? Math.min(...routes.map(r => r.durationMin)) : 0;
+  const fastestRouteIndex = routes.length > 0 ? routes.findIndex(r => r.durationMin === fastestDuration) : -1;
+
+  let showSafestBadge = false;
+  let showNeutralNote = false;
+
+  if (routes.length === 1) {
+    showSafestBadge = !routes[0].isLowCoverage;
+  } else if (routes.length > 1) {
+    const best = routes[0];
+    const next = routes[1];
+    const threshold = Math.max(0.5, best.riskScore * 0.15);
+    const difference = next.riskScore - best.riskScore;
+    
+    if (difference >= threshold && !best.isLowCoverage) {
+      showSafestBadge = true;
+    } else {
+      showNeutralNote = true;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-paper font-sans flex flex-col">
@@ -164,11 +188,22 @@ export default function SafeRoutesPage() {
               </div>
             )}
 
+            {!routeLoading && showNeutralNote && (
+              <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium">
+                No meaningful risk difference found between these routes - data is limited here.
+              </div>
+            )}
+
             {!routeLoading && routes.map((r, i) => {
               const label = `Route ${String.fromCharCode(65 + i)}`
               const isSelected = selectedRouteIndex === i
               const colorClass = i === 0 ? "border-emerald-500 bg-emerald-50" : i === 1 ? "border-orange-400 bg-orange-50" : "border-red-400 bg-red-50"
               const unselectedClass = "border-rule bg-white hover:border-slate-300"
+              
+              const isSafest = showSafestBadge && i === 0
+              const isFastest = !showSafestBadge && i === fastestRouteIndex
+              const isLongWalking = mode === 'foot' && r.distanceKm > 8
+              
               const extraTime = Math.max(0, r.durationMin - fastestDuration)
               
               return (
@@ -178,23 +213,37 @@ export default function SafeRoutesPage() {
                   className={`text-left p-5 rounded-2xl border-2 transition-all shadow-sm ${isSelected ? colorClass : unselectedClass}`}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg">{label} {i === 0 && <span className="text-xs ml-2 bg-emerald-500 text-white px-2 py-0.5 rounded-full">Safest</span>}</h3>
+                    <h3 className="font-bold text-lg">
+                      {label}
+                      {isSafest && <span className="text-xs ml-2 bg-emerald-500 text-white px-2 py-0.5 rounded-full">Safest</span>}
+                      {isFastest && <span className="text-xs ml-2 bg-blue-500 text-white px-2 py-0.5 rounded-full">Fastest</span>}
+                    </h3>
                     <span className="font-mono font-bold text-lg">{r.riskScore.toFixed(1)}</span>
                   </div>
                   
                   <div className="text-sm text-slate-600 space-y-1 mb-3">
                     <p>Distance: {r.distanceKm.toFixed(1)} km</p>
-                    <p>Duration: {Math.round(r.durationMin)} min {extraTime > 1 && <span className="text-xs text-rose-500">(+{Math.round(extraTime)} min)</span>}</p>
+                    <p>
+                      Duration: {Math.round(r.durationMin)} min 
+                      {Math.round(extraTime) >= 1 && <span className="text-xs text-rose-500 ml-1">(+{Math.round(extraTime)} min)</span>}
+                    </p>
                     <p className={r.highRiskCellsCrossed > 0 ? "text-red-600 font-medium" : "text-emerald-600 font-medium"}>
                       High-risk zones crossed: {r.highRiskCellsCrossed}
                     </p>
                   </div>
 
-                  {r.isLowCoverage && (
-                    <div className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded inline-block font-medium mt-1">
-                      Low data coverage
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {r.isLowCoverage && (
+                      <div className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded font-medium">
+                        Low data coverage
+                      </div>
+                    )}
+                    {isLongWalking && (
+                      <div className="text-xs bg-amber-100 text-amber-800 border border-amber-200 px-2 py-1 rounded font-medium">
+                        Long walking route
+                      </div>
+                    )}
+                  </div>
                 </button>
               )
             })}
