@@ -72,7 +72,7 @@ export default function HomeMap({ targetPosition }: { targetPosition?: [number, 
   if (!isMounted) return null
 
   return (
-    <div className="h-[500px] w-full z-0 relative">
+    <div className="h-full w-full z-0 relative">
       <MapContainer 
         key="home-community-map"
         center={[28.6139, 77.2090]} 

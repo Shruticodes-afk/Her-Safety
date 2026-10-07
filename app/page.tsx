@@ -278,9 +278,9 @@ export default function HomePage() {
         {/* LIVE MAP PREVIEW */}
         <section id="live-map" className="py-32 bg-paper border-t border-rule">
           <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row gap-16 items-center">
-            <div className="flex-1 w-full relative h-[400px] md:h-[500px]">
+            <div className="flex-1 w-full relative h-[500px]">
               {/* Real Leaflet Map */}
-              <div className="w-full h-full rounded-sm border border-rule overflow-hidden relative shadow-sm">
+              <div className="w-full h-[500px] rounded-sm border border-rule overflow-hidden relative shadow-sm">
                 <HomeMap />
                 
                 <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm p-4 text-sm border border-rule rounded-sm z-[1000] pointer-events-none">
